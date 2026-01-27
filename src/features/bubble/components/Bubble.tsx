@@ -20,6 +20,55 @@ export const Bubble = (props: BubbleProps) => {
     bottom: bubbleProps.theme?.button?.bottom ?? 20,
     right: bubbleProps.theme?.button?.right ?? 20,
   });
+  const [chatWindowSize, setChatWindowSize] = createSignal({
+    width: bubbleProps.theme?.chatWindow?.width ?? 400,
+    height: bubbleProps.theme?.chatWindow?.height ?? 704,
+  });
+
+  let botRef: HTMLDivElement | undefined;
+  let startX = 0;
+  let startY = 0;
+  let startWidth = 0;
+  let startHeight = 0;
+
+  const onResizeStart = (e: MouseEvent | TouchEvent) => {
+    e.preventDefault();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
+    startX = clientX;
+    startY = clientY;
+    
+    if (botRef) {
+        startWidth = botRef.offsetWidth;
+        startHeight = botRef.offsetHeight;
+    }
+
+    window.addEventListener('mousemove', onResize);
+    window.addEventListener('mouseup', onResizeEnd);
+    window.addEventListener('touchmove', onResize);
+    window.addEventListener('touchend', onResizeEnd);
+  }
+
+  const onResize = (e: MouseEvent | TouchEvent) => {
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    const deltaX = startX - clientX;
+    const deltaY = startY - clientY;
+
+    setChatWindowSize({
+        width: Math.max(300, startWidth + deltaX),
+        height: Math.max(400, startHeight + deltaY)
+    });
+  }
+
+  const onResizeEnd = () => {
+    window.removeEventListener('mousemove', onResize);
+    window.removeEventListener('mouseup', onResizeEnd);
+    window.removeEventListener('touchmove', onResize);
+    window.removeEventListener('touchend', onResizeEnd);
+  }
 
   const openBot = () => {
     if (!isBotStarted()) setIsBotStarted(true);
@@ -83,9 +132,10 @@ export const Bubble = (props: BubbleProps) => {
       />
       <div
         part="bot"
+        ref={botRef}
         style={{
-          height: bubbleProps.theme?.chatWindow?.height ? `${bubbleProps.theme?.chatWindow?.height.toString()}px` : 'calc(100% - 150px)',
-          width: bubbleProps.theme?.chatWindow?.width ? `${bubbleProps.theme?.chatWindow?.width.toString()}px` : undefined,
+          height: `${chatWindowSize().height}px`,
+          width: `${chatWindowSize().width}px`,
           transition: 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out',
           'transform-origin': 'bottom right',
           transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
@@ -100,11 +150,24 @@ export const Bubble = (props: BubbleProps) => {
           right: `${Math.max(0, Math.min(buttonPosition().right, window.innerWidth - (bubbleProps.theme?.chatWindow?.width ?? 410) - 10))}px`,
         }}
         class={
-          `fixed sm:right-5 rounded-lg w-full sm:w-[400px] max-h-[704px]` +
+          `fixed sm:right-5 rounded-lg transition-colors` +
           (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none') +
           ` bottom-${chatWindowBottom}px`
         }
       >
+        <div 
+            style={{
+                position: 'absolute', 
+                top: 0, 
+                left: 0, 
+                width: '20px', 
+                height: '20px', 
+                cursor: 'nwse-resize', 
+                'z-index': 50
+            }}
+            onMouseDown={onResizeStart}
+            onTouchStart={onResizeStart}
+        />
         <Show when={isBotStarted()}>
           <div class="relative h-full">
             <Show when={isBotOpened()}>
