@@ -1319,28 +1319,28 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       const loadedMessages: MessageType[] =
         chatMessage?.chatHistory?.length > 0
           ? chatMessage.chatHistory?.map((message: MessageType) => {
-              const chatHistory: MessageType = {
-                messageId: message?.messageId,
-                message: message.message,
-                type: message.type,
-                rating: message.rating,
-                dateTime: message.dateTime,
-              };
-              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-              if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
-              if (message.action) chatHistory.action = message.action;
-              if (message.artifacts) chatHistory.artifacts = message.artifacts;
-              if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
-              if (message.execution && message.execution.executionData)
-                chatHistory.agentFlowExecutedData =
-                  typeof message.execution.executionData === 'string' ? JSON.parse(message.execution.executionData) : message.execution.executionData;
-              if (message.agentFlowExecutedData)
-                chatHistory.agentFlowExecutedData =
-                  typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData;
-              return chatHistory;
-            })
+            const chatHistory: MessageType = {
+              messageId: message?.messageId,
+              message: message.message,
+              type: message.type,
+              rating: message.rating,
+              dateTime: message.dateTime,
+            };
+            if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+            if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+            if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+            if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
+            if (message.action) chatHistory.action = message.action;
+            if (message.artifacts) chatHistory.artifacts = message.artifacts;
+            if (message.followUpPrompts) chatHistory.followUpPrompts = message.followUpPrompts;
+            if (message.execution && message.execution.executionData)
+              chatHistory.agentFlowExecutedData =
+                typeof message.execution.executionData === 'string' ? JSON.parse(message.execution.executionData) : message.execution.executionData;
+            if (message.agentFlowExecutedData)
+              chatHistory.agentFlowExecutedData =
+                typeof message.agentFlowExecutedData === 'string' ? JSON.parse(message.agentFlowExecutedData) : message.agentFlowExecutedData;
+            return chatHistory;
+          })
           : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
 
       const filteredMessages = loadedMessages.filter((message) => message.type !== 'leadCaptureMessage');
@@ -2395,12 +2395,12 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
           {props.showTitle ? (
             <div
-              class="flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
+              class="chatbot-header flex flex-row items-center w-full h-[50px] absolute top-0 left-0 z-10"
               style={{
-                background: props.titleBackgroundColor || props.bubbleBackgroundColor || defaultTitleBackgroundColor,
-                color: props.titleTextColor || props.bubbleTextColor || defaultBackgroundColor,
-                'border-top-left-radius': props.isFullPage ? '0px' : '6px',
-                'border-top-right-radius': props.isFullPage ? '0px' : '6px',
+                background: props.titleBackgroundColor || props.bubbleBackgroundColor || 'var(--chatbot-header-bg-color)',
+                color: props.titleTextColor || props.bubbleTextColor || 'var(--chatbot-header-color)',
+                'border-top-left-radius': props.isFullPage ? '0px' : 'var(--chatbot-border-radius)',
+                'border-top-right-radius': props.isFullPage ? '0px' : 'var(--chatbot-border-radius)',
               }}
             >
               <Show when={props.titleAvatarSrc}>
@@ -2414,7 +2414,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               </Show>
               <Show when={props.toggleSplitView}>
                 <button
-                  class="my-2 ml-2 bg-transparent border-none cursor-pointer"
+                  class="my-2 ml-2 bg-transparent border-none cursor-pointer hover:bg-black/5 rounded-full p-1 transition-colors"
                   onClick={props.toggleSplitView}
                   title={props.isSplitView ? 'Minimize' : 'Expand'}
                 >
@@ -2443,7 +2443,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 class="my-2 ml-2"
                 on:click={clearChat}
               >
-                <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
+                <span style={{ 'font-family': 'Inter, sans-serif' }}>Clear</span>
               </DeleteButton>
             </div>
           ) : null}
@@ -2585,7 +2585,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                     </div>
                   ) : (
                     <div
-                      class="h-[58px] flex items-center justify-between chatbot-input border border-[#eeeeee]"
+                      class="h-[58px] flex items-center justify-between chatbot-input"
                       data-testid="input"
                       style={{
                         margin: 'auto',

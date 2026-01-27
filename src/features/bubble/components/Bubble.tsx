@@ -168,7 +168,7 @@ export const Bubble = (props: BubbleProps) => {
             : 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out, width 200ms ease-out, height 200ms ease-out',
           'transform-origin': 'bottom right',
           transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
-          'box-shadow': 'rgb(0 0 0 / 16%) 0px 5px 40px',
+          'box-shadow': '0 12px 40px rgba(0, 0, 0, 0.12)',
           'background-color': bubbleProps.theme?.chatWindow?.backgroundColor || '#ffffff',
           'background-image': bubbleProps.theme?.chatWindow?.backgroundImage ? `url(${bubbleProps.theme?.chatWindow?.backgroundImage})` : 'none',
           'background-size': 'cover',
@@ -180,12 +180,12 @@ export const Bubble = (props: BubbleProps) => {
             ? '0'
             : `${Math.max(0, Math.min(buttonPosition().right, window.innerWidth - (bubbleProps.theme?.chatWindow?.width ?? 410) - 10))}px`,
           top: isSplitView() ? '0' : undefined,
-          'border-radius': isSplitView() ? '0' : undefined,
+          'border-radius': isSplitView() ? '0' : 'var(--chatbot-border-radius)',
         }}
         class={
           (isSplitView()
             ? 'fixed right-0 top-0 h-full transition-all duration-200'
-            : `fixed sm:right-5 rounded-lg transition-colors bottom-${chatWindowBottom}px`) +
+            : `fixed sm:right-5 rounded-[var(--chatbot-border-radius)] transition-colors bottom-${chatWindowBottom}px`) +
           (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none')
         }
       >

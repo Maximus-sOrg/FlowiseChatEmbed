@@ -45,7 +45,7 @@ export const Badge = (props: Props) => {
           class="w-full text-center px-[10px] pt-[6px] pb-[10px] m-auto text-[13px]"
           style={{
             color: props.footer?.textColor ?? props.poweredByTextColor ?? defaultTextColor,
-            'background-color': props.badgeBackgroundColor ?? '#ffffff',
+            'background-color': props.badgeBackgroundColor ?? 'transparent',
           }}
         >
           {props.footer?.text ?? 'Powered by'}
@@ -67,7 +67,7 @@ export const Badge = (props: Props) => {
           class="w-full text-center px-[10px] pt-[6px] pb-[10px] m-auto text-[13px]"
           style={{
             color: props.footer?.textColor ?? props.poweredByTextColor ?? defaultTextColor,
-            'background-color': props.badgeBackgroundColor ?? '#ffffff',
+            'background-color': props.badgeBackgroundColor ?? 'transparent',
           }}
         />
       </Show>
