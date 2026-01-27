@@ -118,6 +118,8 @@ export type BotProps = {
     dateTimeToggle?: DateTimeToggleTheme;
     renderHTML?: boolean;
     closeBot?: () => void;
+    isSplitView?: boolean;
+    toggleSplitView?: () => void;
 };
 export type LeadsConfig = {
     status: boolean;
