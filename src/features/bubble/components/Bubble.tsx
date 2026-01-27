@@ -78,7 +78,7 @@ export const Bubble = (props: BubbleProps) => {
 
     if (isSplitView()) {
       const newWidth = Math.max(300, startWidth + deltaX);
-      setChatWindowSize(prev => ({ ...prev, width: newWidth }));
+      setChatWindowSize((prev) => ({ ...prev, width: newWidth }));
       // In split view, we only resize width, passing height back to effect if needed or just letting CSS handle 100vh
       // But since we set style height, we might want to update it to window.innerHeight or similar, or just ignore height updates in style val
     } else {
@@ -163,7 +163,9 @@ export const Bubble = (props: BubbleProps) => {
         style={{
           height: isSplitView() ? '100vh' : `${chatWindowSize().height}px`,
           width: `${chatWindowSize().width}px`,
-          transition: isResizing() ? 'none' : 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out, width 200ms ease-out, height 200ms ease-out',
+          transition: isResizing()
+            ? 'none'
+            : 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out, width 200ms ease-out, height 200ms ease-out',
           'transform-origin': 'bottom right',
           transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
           'box-shadow': 'rgb(0 0 0 / 16%) 0px 5px 40px',
@@ -174,12 +176,16 @@ export const Bubble = (props: BubbleProps) => {
           'background-repeat': 'no-repeat',
           'z-index': 42424242,
           bottom: isSplitView() ? '0' : `${Math.min(buttonPosition().bottom + buttonSize + 10, window.innerHeight - chatWindowBottom)}px`,
-          right: isSplitView() ? '0' : `${Math.max(0, Math.min(buttonPosition().right, window.innerWidth - (bubbleProps.theme?.chatWindow?.width ?? 410) - 10))}px`,
+          right: isSplitView()
+            ? '0'
+            : `${Math.max(0, Math.min(buttonPosition().right, window.innerWidth - (bubbleProps.theme?.chatWindow?.width ?? 410) - 10))}px`,
           top: isSplitView() ? '0' : undefined,
           'border-radius': isSplitView() ? '0' : undefined,
         }}
         class={
-          (isSplitView() ? 'fixed right-0 top-0 h-full transition-all duration-200' : `fixed sm:right-5 rounded-lg transition-colors bottom-${chatWindowBottom}px`) +
+          (isSplitView()
+            ? 'fixed right-0 top-0 h-full transition-all duration-200'
+            : `fixed sm:right-5 rounded-lg transition-colors bottom-${chatWindowBottom}px`) +
           (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none')
         }
       >
