@@ -2403,18 +2403,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                 'border-top-right-radius': props.isFullPage ? '0px' : 'var(--chatbot-border-radius)',
               }}
             >
-              <Show when={props.titleAvatarSrc}>
-                <>
-                  <div style={{ width: '15px' }} />
-                  <Avatar initialAvatarSrc={props.titleAvatarSrc} />
-                </>
-              </Show>
-              <Show when={props.title}>
-                <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
-              </Show>
               <Show when={props.toggleSplitView}>
                 <button
-                  class="my-2 ml-2 bg-transparent border-none cursor-pointer hover:bg-black/5 rounded-full p-1 transition-colors"
+                  class="my-2 ml-3 mr-1 bg-transparent border-none cursor-pointer hover:bg-black/5 rounded-full p-1 transition-colors"
                   onClick={props.toggleSplitView}
                   title={props.isSplitView ? 'Minimize' : 'Expand'}
                 >
@@ -2435,6 +2426,16 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
                   </svg>
                 </button>
               </Show>
+              <Show when={props.titleAvatarSrc}>
+                <>
+                  <div style={{ width: '15px' }} />
+                  <Avatar initialAvatarSrc={props.titleAvatarSrc} />
+                </>
+              </Show>
+              <Show when={props.title}>
+                <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
+              </Show>
+
               <div style={{ flex: 1 }} />
               <DeleteButton
                 sendButtonColor={props.bubbleTextColor}
@@ -2445,6 +2446,24 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               >
                 <span style={{ 'font-family': 'Inter, sans-serif' }}>Clear</span>
               </DeleteButton>
+              <Show when={props.closeBot}>
+                <button
+                  class="my-2 mr-2 bg-transparent border-none cursor-pointer hover:bg-black/5 rounded-full p-1 transition-colors"
+                  onClick={props.closeBot}
+                  title="Close Chat"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    stroke={props.titleTextColor || props.bubbleTextColor || 'white'}
+                    stroke-width="2.5"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </Show>
             </div>
           ) : null}
           <div class="flex flex-col w-full h-full justify-start z-0">

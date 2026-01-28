@@ -49,9 +49,13 @@ export const Bubble = (props: BubbleProps) => {
     });
   });
 
-  const onResizeStart = (e: MouseEvent | TouchEvent) => {
+  /* Resize Logic */
+  const [resizeAxis, setResizeAxis] = createSignal<'x' | 'y' | 'both'>('both');
+
+  const onResizeStart = (e: MouseEvent | TouchEvent, axis: 'x' | 'y' | 'both' = 'both') => {
     e.preventDefault();
     setIsResizing(true);
+    setResizeAxis(axis);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
 
@@ -79,13 +83,18 @@ export const Bubble = (props: BubbleProps) => {
     if (isSplitView()) {
       const newWidth = Math.max(300, startWidth + deltaX);
       setChatWindowSize((prev) => ({ ...prev, width: newWidth }));
-      // In split view, we only resize width, passing height back to effect if needed or just letting CSS handle 100vh
-      // But since we set style height, we might want to update it to window.innerHeight or similar, or just ignore height updates in style val
     } else {
-      setChatWindowSize({
-        width: Math.max(300, startWidth + deltaX),
-        height: Math.max(400, startHeight + deltaY),
-      });
+      const newSize = { ...chatWindowSize() };
+      const axis = resizeAxis();
+
+      if (axis === 'x' || axis === 'both') {
+        newSize.width = Math.max(300, startWidth + deltaX);
+      }
+      if (axis === 'y' || axis === 'both') {
+        newSize.height = Math.max(400, startHeight + deltaY);
+      }
+
+      setChatWindowSize(newSize);
     }
   };
 
@@ -165,7 +174,7 @@ export const Bubble = (props: BubbleProps) => {
           width: `${chatWindowSize().width}px`,
           transition: isResizing()
             ? 'none'
-            : 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out, width 200ms ease-out, height 200ms ease-out',
+            : 'transform 400ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease-out, width 200ms ease-out, height 200ms ease-out',
           'transform-origin': 'bottom right',
           transform: isBotOpened() ? 'scale3d(1, 1, 1)' : 'scale3d(0, 0, 1)',
           'box-shadow': '0 12px 40px rgba(0, 0, 0, 0.12)',
@@ -189,36 +198,51 @@ export const Bubble = (props: BubbleProps) => {
           (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none')
         }
       >
+        {/* Top-Left Corner (Both) */}
         <div
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '20px',
-            height: '100%',
+            width: '15px',
+            height: '15px',
+            cursor: 'nwse-resize',
+            'z-index': 51,
+          }}
+          onMouseDown={(e) => onResizeStart(e, 'both')}
+          onTouchStart={(e) => onResizeStart(e, 'both')}
+        />
+        {/* Left Edge (X-axis) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '15px',
+            left: 0,
+            width: '10px',
+            height: 'calc(100% - 15px)',
             cursor: 'ew-resize',
             'z-index': 50,
           }}
-          onMouseDown={onResizeStart}
-          onTouchStart={onResizeStart}
+          onMouseDown={(e) => onResizeStart(e, 'x')}
+          onTouchStart={(e) => onResizeStart(e, 'x')}
+        />
+        {/* Top Edge (Y-axis) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: '15px',
+            width: 'calc(100% - 15px)',
+            height: '10px',
+            cursor: 'ns-resize',
+            'z-index': 50,
+          }}
+          onMouseDown={(e) => onResizeStart(e, 'y')}
+          onTouchStart={(e) => onResizeStart(e, 'y')}
         />
         <Show when={isBotStarted()}>
           <div class="relative h-full">
-            <Show when={isBotOpened()}>
-              {/* Cross button For only mobile screen use this <Show when={isBotOpened() && window.innerWidth <= 640}>  */}
-              <button
-                onClick={closeBot}
-                class="py-2 pr-3 absolute top-0 right-[-8px] m-[6px] bg-transparent text-white rounded-full z-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75"
-                title="Close Chat"
-              >
-                <svg viewBox="0 0 24 24" width="24" height="24">
-                  <path
-                    fill={bubbleProps.theme?.button?.iconColor ?? defaultIconColor}
-                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"
-                  />
-                </svg>
-              </button>
-            </Show>
+
             <Bot
               backgroundColor={bubbleProps.theme?.chatWindow?.backgroundColor}
               formBackgroundColor={bubbleProps.theme?.form?.backgroundColor}

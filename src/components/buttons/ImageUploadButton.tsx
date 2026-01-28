@@ -16,7 +16,7 @@ export const ImageUploadButton = (props: ImageUploadButtonProps) => {
       disabled={props.isDisabled || props.isLoading}
       {...props}
       class={
-        'py-2 pl-4 pr-0 justify-center font-semibold focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:brightness-90 active:brightness-75 chatbot-button ' +
+        'py-2 pl-4 pr-0 justify-center font-semibold focus:outline-none flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 transition-all filter hover:bg-transparent hover:scale-110 active:scale-90 duration-200 ease-out ' +
         props.class
       }
       style={{ background: 'transparent', border: 'none' }}
