@@ -185,7 +185,11 @@ export const Bubble = (props: BubbleProps) => {
             ? '0'
             : `${Math.max(0, Math.min(buttonPosition().right, window.innerWidth - (bubbleProps.theme?.chatWindow?.width ?? 410) - 10))}px`,
           top: isSplitView() ? '0' : undefined,
-          'border-radius': isSplitView() ? '0' : undefined,
+          'border-top-left-radius': isSplitView() ? '6px' : undefined,
+          'border-top-right-radius': isSplitView() ? '0' : undefined,
+          'border-bottom-left-radius': isSplitView() ? '0' : undefined,
+          'border-bottom-right-radius': isSplitView() ? '0' : undefined,
+          overflow: isSplitView() ? 'hidden' : undefined,
         }}
         class={
           (isSplitView()
