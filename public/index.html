@@ -29,7 +29,13 @@
         // Then use the environment variable name as chatflowid:
         Chatbot.init({
             chatflowid: 'agent1',    // or 'support', 'salesbot', etc.
-            apiHost: window.location.origin
+            apiHost: window.location.origin,
+            theme: {
+                chatWindow: {
+                    showTitle : true,
+                    title: "Title"
+                }
+            }
         })
     </script>
 </body>
