@@ -50,7 +50,7 @@ export const Bubble = (props: BubbleProps) => {
   createEffect(() => {
     if (isSplitView()) {
       // Fixed canvas width configured + mobile fullscreen: don't push the body
-      document.body.style.marginRight = (canvasWidthConfig !== undefined && isMobile()) ? '' : canvasWidthCSS();
+      document.body.style.marginRight = canvasWidthConfig !== undefined && isMobile() ? '' : canvasWidthCSS();
       document.body.style.transition = 'margin-right 200ms ease-out';
     } else {
       document.body.style.marginRight = '';
