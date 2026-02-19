@@ -32,6 +32,7 @@ export const Bubble = (props: BubbleProps) => {
   let startY = 0;
   let startWidth = 0;
   let startHeight = 0;
+  let resizeDirection: 'left' | 'top' | 'corner' = 'left';
 
   createEffect(() => {
     if (isSplitView()) {
@@ -49,9 +50,10 @@ export const Bubble = (props: BubbleProps) => {
     });
   });
 
-  const onResizeStart = (e: MouseEvent | TouchEvent) => {
+  const onResizeStart = (e: MouseEvent | TouchEvent, direction: 'left' | 'top' | 'corner' = 'left') => {
     e.preventDefault();
     setIsResizing(true);
+    resizeDirection = direction;
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
 
@@ -76,16 +78,18 @@ export const Bubble = (props: BubbleProps) => {
     const deltaX = startX - clientX;
     const deltaY = startY - clientY;
 
+    const resizeWidth = resizeDirection === 'left' || resizeDirection === 'corner';
+    const resizeHeight = resizeDirection === 'top' || resizeDirection === 'corner';
+
     if (isSplitView()) {
-      const newWidth = Math.max(300, startWidth + deltaX);
-      setChatWindowSize((prev) => ({ ...prev, width: newWidth }));
-      // In split view, we only resize width, passing height back to effect if needed or just letting CSS handle 100vh
-      // But since we set style height, we might want to update it to window.innerHeight or similar, or just ignore height updates in style val
+      if (resizeWidth) {
+        setChatWindowSize((prev) => ({ ...prev, width: Math.max(300, startWidth + deltaX) }));
+      }
     } else {
-      setChatWindowSize({
-        width: Math.max(300, startWidth + deltaX),
-        height: Math.max(400, startHeight + deltaY),
-      });
+      setChatWindowSize((prev) => ({
+        width: resizeWidth ? Math.max(300, startWidth + deltaX) : prev.width,
+        height: resizeHeight ? Math.max(400, startHeight + deltaY) : prev.height,
+      }));
     }
   };
 
@@ -190,19 +194,52 @@ export const Bubble = (props: BubbleProps) => {
           (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none')
         }
       >
+        {/* Left edge resize handle */}
         <div
           style={{
             position: 'absolute',
-            top: 0,
+            top: '12px',
             left: 0,
-            width: '20px',
-            height: '100%',
+            width: '6px',
+            height: 'calc(100% - 12px)',
             cursor: 'ew-resize',
             'z-index': 50,
           }}
-          onMouseDown={onResizeStart}
-          onTouchStart={onResizeStart}
+          onMouseDown={(e) => onResizeStart(e, 'left')}
+          onTouchStart={(e) => onResizeStart(e, 'left')}
         />
+        {/* Top edge resize handle */}
+        <Show when={!isSplitView()}>
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: '12px',
+              width: 'calc(100% - 12px)',
+              height: '6px',
+              cursor: 'ns-resize',
+              'z-index': 50,
+            }}
+            onMouseDown={(e) => onResizeStart(e, 'top')}
+            onTouchStart={(e) => onResizeStart(e, 'top')}
+          />
+        </Show>
+        {/* Top-left corner resize handle */}
+        <Show when={!isSplitView()}>
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '12px',
+              height: '12px',
+              cursor: 'nw-resize',
+              'z-index': 51,
+            }}
+            onMouseDown={(e) => onResizeStart(e, 'corner')}
+            onTouchStart={(e) => onResizeStart(e, 'corner')}
+          />
+        </Show>
         <Show when={isBotStarted()}>
           <div class="relative h-full">
             <Show when={isBotOpened()}>
