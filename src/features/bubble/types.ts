@@ -69,6 +69,7 @@ export type ChatWindowTheme = {
   backgroundImage?: string;
   height?: number;
   width?: number;
+  canvasWidth?: string | number; // Width of the chat panel in canvas/split-view mode, e.g. '40%', '30vw', or 400 (px). Defaults to '40%'.
   fontSize?: number;
   userMessage?: UserMessageTheme;
   botMessage?: BotMessageTheme;

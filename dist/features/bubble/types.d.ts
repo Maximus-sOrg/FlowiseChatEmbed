@@ -61,6 +61,7 @@ export type ChatWindowTheme = {
     backgroundImage?: string;
     height?: number;
     width?: number;
+    canvasWidth?: string | number;
     fontSize?: number;
     userMessage?: UserMessageTheme;
     botMessage?: BotMessageTheme;

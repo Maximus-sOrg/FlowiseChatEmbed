@@ -26,6 +26,19 @@ export const Bubble = (props: BubbleProps) => {
   });
   const [isSplitView, setIsSplitView] = createSignal(false);
   const [isResizing, setIsResizing] = createSignal(false);
+  const [isMobile, setIsMobile] = createSignal(window.innerWidth <= 768);
+
+  const canvasWidthConfig = bubbleProps.theme?.chatWindow?.canvasWidth;
+  // Resolves the canvas panel width to a CSS string value.
+  // Only applies when canvasWidth is explicitly configured; otherwise the existing resizable behavior is used.
+  const canvasWidthCSS = () => {
+    if (canvasWidthConfig === undefined) return `${chatWindowSize().width}px`;
+    if (isMobile()) return '100vw';
+    return typeof canvasWidthConfig === 'number' ? `${canvasWidthConfig}px` : canvasWidthConfig;
+  };
+
+  const onWindowResize = () => setIsMobile(window.innerWidth <= 768);
+  window.addEventListener('resize', onWindowResize);
 
   let botRef: HTMLDivElement | undefined;
   let startX = 0;
@@ -36,14 +49,13 @@ export const Bubble = (props: BubbleProps) => {
 
   createEffect(() => {
     if (isSplitView()) {
-      const width = chatWindowSize().width;
-      document.body.style.marginRight = `${width}px`;
+      // Fixed canvas width configured + mobile fullscreen: don't push the body
+      document.body.style.marginRight = (canvasWidthConfig !== undefined && isMobile()) ? '' : canvasWidthCSS();
       document.body.style.transition = 'margin-right 200ms ease-out';
     } else {
       document.body.style.marginRight = '';
       document.body.style.transition = '';
     }
-    // Cleanup
     onCleanup(() => {
       document.body.style.marginRight = '';
       document.body.style.transition = '';
@@ -117,6 +129,7 @@ export const Bubble = (props: BubbleProps) => {
 
   onCleanup(() => {
     setIsBotStarted(false);
+    window.removeEventListener('resize', onWindowResize);
   });
 
   const buttonSize = getBubbleButtonSize(props.theme?.button?.size); // Default to 48px if size is not provided
@@ -167,7 +180,7 @@ export const Bubble = (props: BubbleProps) => {
         ref={botRef}
         style={{
           height: isSplitView() ? '100vh' : `${chatWindowSize().height}px`,
-          width: `${chatWindowSize().width}px`,
+          width: isSplitView() ? canvasWidthCSS() : `${chatWindowSize().width}px`,
           transition: isResizing()
             ? 'none'
             : 'transform 200ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out, width 200ms ease-out, height 200ms ease-out',
@@ -185,7 +198,7 @@ export const Bubble = (props: BubbleProps) => {
             ? '0'
             : `${Math.max(0, Math.min(buttonPosition().right, window.innerWidth - (bubbleProps.theme?.chatWindow?.width ?? 410) - 10))}px`,
           top: isSplitView() ? '0' : undefined,
-          'border-top-left-radius': isSplitView() ? '6px' : undefined,
+          'border-top-left-radius': isSplitView() ? (canvasWidthConfig !== undefined && isMobile() ? '0' : '6px') : undefined,
           'border-top-right-radius': isSplitView() ? '0' : undefined,
           'border-bottom-left-radius': isSplitView() ? '0' : undefined,
           'border-bottom-right-radius': isSplitView() ? '0' : undefined,
@@ -198,48 +211,23 @@ export const Bubble = (props: BubbleProps) => {
           (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none')
         }
       >
-        {/* Left edge resize handle */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '12px',
-            left: 0,
-            width: '6px',
-            height: 'calc(100% - 12px)',
-            cursor: 'ew-resize',
-            'z-index': 50,
-          }}
-          onMouseDown={(e) => onResizeStart(e, 'left')}
-          onTouchStart={(e) => onResizeStart(e, 'left')}
-        />
-        {/* Top edge resize handle */}
-        <Show when={!isSplitView()}>
+        {/* Resize handles — hidden in canvas mode only when canvasWidth is configured (fixed width) */}
+        <Show when={!isSplitView() || canvasWidthConfig === undefined}>
+          {/* Left edge */}
           <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: '12px',
-              width: 'calc(100% - 12px)',
-              height: '6px',
-              cursor: 'ns-resize',
-              'z-index': 50,
-            }}
+            style={{ position: 'absolute', top: '12px', left: 0, width: '6px', height: 'calc(100% - 12px)', cursor: 'ew-resize', 'z-index': 50 }}
+            onMouseDown={(e) => onResizeStart(e, 'left')}
+            onTouchStart={(e) => onResizeStart(e, 'left')}
+          />
+          {/* Top edge */}
+          <div
+            style={{ position: 'absolute', top: 0, left: '12px', width: 'calc(100% - 12px)', height: '6px', cursor: 'ns-resize', 'z-index': 50 }}
             onMouseDown={(e) => onResizeStart(e, 'top')}
             onTouchStart={(e) => onResizeStart(e, 'top')}
           />
-        </Show>
-        {/* Top-left corner resize handle */}
-        <Show when={!isSplitView()}>
+          {/* Top-left corner */}
           <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '12px',
-              height: '12px',
-              cursor: 'nw-resize',
-              'z-index': 51,
-            }}
+            style={{ position: 'absolute', top: 0, left: 0, width: '12px', height: '12px', cursor: 'nw-resize', 'z-index': 51 }}
             onMouseDown={(e) => onResizeStart(e, 'corner')}
             onTouchStart={(e) => onResizeStart(e, 'corner')}
           />
