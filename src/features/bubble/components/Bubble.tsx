@@ -20,21 +20,43 @@ export const Bubble = (props: BubbleProps) => {
     bottom: bubbleProps.theme?.button?.bottom ?? 20,
     right: bubbleProps.theme?.button?.right ?? 20,
   });
+  const canvasWidthConfig = bubbleProps.theme?.chatWindow?.canvasWidth;
+  // canvasResizable: defaults to false when canvasWidth is set (fixed), true when not set (old resizable behavior)
+  const canvasResizable = canvasWidthConfig !== undefined
+    ? (bubbleProps.theme?.chatWindow?.canvasResizable ?? false)
+    : true;
+
+  // Convert canvasWidth config to pixels for use as initial resize starting point
+  const resolveCanvasWidthPx = (config: string | number): number => {
+    if (typeof config === 'number') return config;
+    const str = config.trim();
+    if (str.endsWith('%')) return Math.round(window.innerWidth * parseFloat(str) / 100);
+    if (str.endsWith('vw')) return Math.round(window.innerWidth * parseFloat(str) / 100);
+    if (str.endsWith('px')) return parseFloat(str);
+    return 400;
+  };
+
   const [chatWindowSize, setChatWindowSize] = createSignal({
-    width: bubbleProps.theme?.chatWindow?.width ?? 400,
+    // When canvasWidth is set and resizable: use it as the initial pixel width so dragging starts from there
+    width: (canvasResizable && canvasWidthConfig !== undefined)
+      ? resolveCanvasWidthPx(canvasWidthConfig)
+      : (bubbleProps.theme?.chatWindow?.width ?? 400),
     height: bubbleProps.theme?.chatWindow?.height ?? 704,
   });
-  const [isSplitView, setIsSplitView] = createSignal(false);
+  const [isSplitView, setIsSplitView] = createSignal(bubbleProps.theme?.chatWindow?.defaultToCanvas ?? false);
   const [isResizing, setIsResizing] = createSignal(false);
   const [isMobile, setIsMobile] = createSignal(window.innerWidth <= 768);
 
-  const canvasWidthConfig = bubbleProps.theme?.chatWindow?.canvasWidth;
-  // Resolves the canvas panel width to a CSS string value.
-  // Only applies when canvasWidth is explicitly configured; otherwise the existing resizable behavior is used.
+  // Resolves the canvas panel width to a CSS value for the container and marginRight.
   const canvasWidthCSS = () => {
-    if (canvasWidthConfig === undefined) return `${chatWindowSize().width}px`;
-    if (isMobile()) return '100vw';
-    return typeof canvasWidthConfig === 'number' ? `${canvasWidthConfig}px` : canvasWidthConfig;
+    // Mobile fullscreen only when canvasWidth is explicitly configured
+    if (canvasWidthConfig !== undefined && isMobile()) return '100vw';
+    // Fixed width (not resizable): return the configured CSS value directly
+    if (canvasWidthConfig !== undefined && !canvasResizable) {
+      return typeof canvasWidthConfig === 'number' ? `${canvasWidthConfig}px` : canvasWidthConfig;
+    }
+    // Resizable (or no canvasWidth configured): use the signal-based pixel width
+    return `${chatWindowSize().width}px`;
   };
 
   const onWindowResize = () => setIsMobile(window.innerWidth <= 768);
@@ -48,9 +70,9 @@ export const Bubble = (props: BubbleProps) => {
   let resizeDirection: 'left' | 'top' | 'corner' = 'left';
 
   createEffect(() => {
-    if (isSplitView()) {
-      // Fixed canvas width configured + mobile fullscreen: don't push the body
-      document.body.style.marginRight = canvasWidthConfig !== undefined && isMobile() ? '' : canvasWidthCSS();
+    if (isSplitView() && isBotOpened()) {
+      // Mobile fullscreen canvas: don't push the body
+      document.body.style.marginRight = (canvasWidthConfig !== undefined && isMobile()) ? '' : canvasWidthCSS();
       document.body.style.transition = 'margin-right 200ms ease-out';
     } else {
       document.body.style.marginRight = '';
@@ -198,7 +220,7 @@ export const Bubble = (props: BubbleProps) => {
             ? '0'
             : `${Math.max(0, Math.min(buttonPosition().right, window.innerWidth - (bubbleProps.theme?.chatWindow?.width ?? 410) - 10))}px`,
           top: isSplitView() ? '0' : undefined,
-          'border-top-left-radius': isSplitView() ? (canvasWidthConfig !== undefined && isMobile() ? '0' : '6px') : undefined,
+          'border-top-left-radius': isSplitView() ? (canvasWidthConfig !== undefined && isMobile() ? '0' : '6px') : undefined, // mobile fullscreen = no radius
           'border-top-right-radius': isSplitView() ? '0' : undefined,
           'border-bottom-left-radius': isSplitView() ? '0' : undefined,
           'border-bottom-right-radius': isSplitView() ? '0' : undefined,
@@ -211,8 +233,8 @@ export const Bubble = (props: BubbleProps) => {
           (isBotOpened() ? ' opacity-1' : ' opacity-0 pointer-events-none')
         }
       >
-        {/* Resize handles — hidden in canvas mode only when canvasWidth is configured (fixed width) */}
-        <Show when={!isSplitView() || canvasWidthConfig === undefined}>
+        {/* Resize handles — hidden in canvas mode when width is fixed (canvasResizable: false) */}
+        <Show when={!isSplitView() || canvasResizable}>
           {/* Left edge */}
           <div
             style={{ position: 'absolute', top: '12px', left: 0, width: '6px', height: 'calc(100% - 12px)', cursor: 'ew-resize', 'z-index': 50 }}

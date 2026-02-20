@@ -164,10 +164,13 @@ You can also customize chatbot with different configuration
         backgroundImage: 'enter image path or link', // If set, this will overlap the background color of the chat window.
         height: 700,
         width: 400,
-        canvasWidth: '40%', // (optional) Fixed width of the chat panel in canvas/split-view mode.
+        canvasWidth: '40%', // (optional) Initial/fixed width of the canvas panel.
                             // Accepts any CSS width value: '40%', '30vw', or a number for pixels (e.g. 400).
-                            // If not set, the panel remains freely resizable in canvas mode.
-                            // On mobile devices (≤ 768px), the panel always expands to full screen regardless of this setting.
+                            // On mobile devices (≤ 768px) the panel always expands to full screen.
+        canvasResizable: false, // (optional) Whether the user can resize the canvas panel by dragging.
+                                // Defaults to false when canvasWidth is set (fixed), true when canvasWidth is not set.
+                                // Set to true together with canvasWidth to start at a defined width but still allow resizing.
+        defaultToCanvas: false, // (optional) If true, the chat opens directly in canvas/split-view mode. Defaults to false.
         fontSize: 16,
         starterPrompts: ['What is a bot?', 'Who are you?'], // It overrides the starter prompts set by the chat flow passed
         starterPromptFontSize: 15,

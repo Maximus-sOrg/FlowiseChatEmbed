@@ -69,7 +69,9 @@ export type ChatWindowTheme = {
   backgroundImage?: string;
   height?: number;
   width?: number;
-  canvasWidth?: string | number; // Width of the chat panel in canvas/split-view mode, e.g. '40%', '30vw', or 400 (px). Defaults to '40%'.
+  canvasWidth?: string | number; // Initial/fixed width of the canvas panel, e.g. '40%', '30vw', or 400 (px).
+  canvasResizable?: boolean; // Whether the canvas panel can be resized by the user. Defaults to false when canvasWidth is set, true otherwise.
+  defaultToCanvas?: boolean; // If true, the chat opens directly in canvas/split-view mode. Defaults to false.
   fontSize?: number;
   userMessage?: UserMessageTheme;
   botMessage?: BotMessageTheme;

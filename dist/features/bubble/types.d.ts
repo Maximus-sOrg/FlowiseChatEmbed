@@ -62,6 +62,8 @@ export type ChatWindowTheme = {
     height?: number;
     width?: number;
     canvasWidth?: string | number;
+    canvasResizable?: boolean;
+    defaultToCanvas?: boolean;
     fontSize?: number;
     userMessage?: UserMessageTheme;
     botMessage?: BotMessageTheme;
