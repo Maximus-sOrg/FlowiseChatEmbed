@@ -22,25 +22,21 @@ export const Bubble = (props: BubbleProps) => {
   });
   const canvasWidthConfig = bubbleProps.theme?.chatWindow?.canvasWidth;
   // canvasResizable: defaults to false when canvasWidth is set (fixed), true when not set (old resizable behavior)
-  const canvasResizable = canvasWidthConfig !== undefined
-    ? (bubbleProps.theme?.chatWindow?.canvasResizable ?? false)
-    : true;
+  const canvasResizable = canvasWidthConfig !== undefined ? bubbleProps.theme?.chatWindow?.canvasResizable ?? false : true;
 
   // Convert canvasWidth config to pixels for use as initial resize starting point
   const resolveCanvasWidthPx = (config: string | number): number => {
     if (typeof config === 'number') return config;
     const str = config.trim();
-    if (str.endsWith('%')) return Math.round(window.innerWidth * parseFloat(str) / 100);
-    if (str.endsWith('vw')) return Math.round(window.innerWidth * parseFloat(str) / 100);
+    if (str.endsWith('%')) return Math.round((window.innerWidth * parseFloat(str)) / 100);
+    if (str.endsWith('vw')) return Math.round((window.innerWidth * parseFloat(str)) / 100);
     if (str.endsWith('px')) return parseFloat(str);
     return 400;
   };
 
   const [chatWindowSize, setChatWindowSize] = createSignal({
     // When canvasWidth is set and resizable: use it as the initial pixel width so dragging starts from there
-    width: (canvasResizable && canvasWidthConfig !== undefined)
-      ? resolveCanvasWidthPx(canvasWidthConfig)
-      : (bubbleProps.theme?.chatWindow?.width ?? 400),
+    width: canvasResizable && canvasWidthConfig !== undefined ? resolveCanvasWidthPx(canvasWidthConfig) : bubbleProps.theme?.chatWindow?.width ?? 400,
     height: bubbleProps.theme?.chatWindow?.height ?? 704,
   });
   const [isSplitView, setIsSplitView] = createSignal(bubbleProps.theme?.chatWindow?.defaultToCanvas ?? false);
@@ -72,7 +68,7 @@ export const Bubble = (props: BubbleProps) => {
   createEffect(() => {
     if (isSplitView() && isBotOpened()) {
       // Mobile fullscreen canvas: don't push the body
-      document.body.style.marginRight = (canvasWidthConfig !== undefined && isMobile()) ? '' : canvasWidthCSS();
+      document.body.style.marginRight = canvasWidthConfig !== undefined && isMobile() ? '' : canvasWidthCSS();
       document.body.style.transition = 'margin-right 200ms ease-out';
     } else {
       document.body.style.marginRight = '';
@@ -142,7 +138,8 @@ export const Bubble = (props: BubbleProps) => {
 
   const closeBot = () => {
     setIsBotOpened(false);
-    if (isSplitView()) setIsSplitView(false);
+    // isSplitView is intentionally NOT reset here — canvas/popup mode is preserved
+    // so reopening the chat restores the last used mode.
   };
 
   const toggleBot = () => {
