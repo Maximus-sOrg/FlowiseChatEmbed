@@ -78,8 +78,17 @@ export type MessageType = {
     followUpPrompts?: string;
     dateTime?: string;
 };
+type IUploads = {
+    data: FilePreviewData;
+    type: string;
+    name: string;
+    mime: string;
+}[];
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
-export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
+type observeUploadsConfigType = (uploads: IUploads) => void;
+export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType> & {
+    observeUploads?: observeUploadsConfigType;
+};
 export type BotProps = {
     chatflowid: string;
     apiHost?: string;

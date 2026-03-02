@@ -136,7 +136,10 @@ type IUploads = {
 }[];
 
 type observerConfigType = (accessor: string | boolean | object | MessageType[]) => void;
-export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType>;
+type observeUploadsConfigType = (uploads: IUploads) => void;
+export type observersConfigType = Record<'observeUserInput' | 'observeLoading' | 'observeMessages', observerConfigType> & {
+  observeUploads?: observeUploadsConfigType;
+};
 
 export type BotProps = {
   chatflowid: string;
@@ -1087,6 +1090,26 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
 
+    // Merge image base64 data into overrideConfig.vars if images are present
+    const imageUploads = uploads.filter((u) => u.mime?.startsWith('image/'));
+    if (imageUploads.length > 0) {
+      const imageVars = {
+        uploads: imageUploads.map((u) => ({
+          data: u.data,
+          name: u.name,
+          mime: u.mime,
+          type: u.type,
+        })),
+      };
+      body.overrideConfig = {
+        ...body.overrideConfig,
+        vars: {
+          ...((body.overrideConfig?.vars as Record<string, unknown>) ?? {}),
+          ...imageVars,
+        },
+      };
+    }
+
     if (leadEmail()) body.leadEmail = leadEmail();
 
     if (action) body.action = action;
@@ -1157,6 +1180,11 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
         handleError();
         return;
       }
+    }
+
+    // Notify observeUploads with full base64 data before cleanup
+    if (uploads && uploads.length > 0 && botProps?.observersConfig?.observeUploads) {
+      botProps.observersConfig.observeUploads(uploads);
     }
 
     // Update last question to avoid saving base64 data to localStorage
