@@ -40,18 +40,6 @@ const indexConfig = {
     typescript(),
     typescriptPaths({ preserveExtensions: true }),
     terser({ output: { comments: false } }),
-    ...(isDev
-      ? [
-          serve({
-            open: true,
-            verbose: true,
-            contentBase: ['dist', 'public'],
-            host: 'localhost',
-            port: 5678,
-          }),
-          livereload({ watch: 'dist' }),
-        ]
-      : []), // Add serve/livereload only in development
   ],
 };
 
@@ -63,6 +51,21 @@ const configs = [
       file: 'dist/web.js',
       format: 'es',
     },
+    plugins: [
+      ...indexConfig.plugins,
+      ...(isDev
+        ? [
+            serve({
+              open: true,
+              verbose: true,
+              contentBase: ['dist', 'public'],
+              host: 'localhost',
+              port: 5678,
+            }),
+            livereload({ watch: 'dist' }),
+          ]
+        : []),
+    ],
   },
   {
     ...indexConfig,
