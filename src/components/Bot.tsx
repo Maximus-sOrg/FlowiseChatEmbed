@@ -1086,12 +1086,14 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
       delete body.question;
     }
 
-    if (uploads && uploads.length > 0) body.uploads = uploads;
+    const nonImageUploads = uploads.filter((u) => !u.mime?.startsWith('image/'));
+    if (nonImageUploads.length > 0) body.uploads = nonImageUploads;
 
     if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
 
     // Merge image base64 data into overrideConfig.vars if images are present
     const imageUploads = uploads.filter((u) => u.mime?.startsWith('image/'));
+    if (imageUploads.length > 0) body.question = `${value} [image-search]`.trim();
     if (imageUploads.length > 0) {
       const imageVars = {
         uploads: imageUploads.map((u) => ({
