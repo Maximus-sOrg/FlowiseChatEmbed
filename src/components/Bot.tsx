@@ -1088,7 +1088,32 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
 
     if (uploads && uploads.length > 0) body.uploads = uploads;
 
-    if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig;
+      /**
+     * Custom ISH-Chatflow configuration:
+     * Override the body of a chatmessage to contain the icm_access_token, 
+     * which is stored in the local storage. In order to use the token in Flowise, 
+     * create a static variable 'user_token' and allow variable overrides in the config.
+     */
+    if (props.chatflowConfig) {
+      body.overrideConfig = {
+        ...props.chatflowConfig,
+        vars: {
+          ...(typeof props.chatflowConfig.vars === 'object' ? props.chatflowConfig.vars : {}),
+
+          user_token: (() => {
+            const raw = decodeURIComponent(
+              document.cookie.split('; ').find(r => r.startsWith('apiToken='))?.split('=')[1] || ''
+            );
+            try {
+              const token = JSON.parse(raw).apiToken || '';
+              return token;
+            } catch {
+              return '';
+            }
+          })(),
+        },
+      };
+    }
 
     // Merge image base64 data into overrideConfig.vars if images are present
     const imageUploads = uploads.filter((u) => u.mime?.startsWith('image/'));
